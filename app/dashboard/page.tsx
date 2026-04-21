@@ -229,6 +229,9 @@ type LeadCardProps = {
 
 function LeadCard({ lead, onComplete, isSubmitting }: LeadCardProps) {
   const [note, setNote] = useState("");
+  const [scriptType, setScriptType] = useState<"no_website" | "poor_website">(
+    "no_website"
+  );
 
   const outcomes = [
     "no_answer",
@@ -261,22 +264,116 @@ function LeadCard({ lead, onComplete, isSubmitting }: LeadCardProps) {
       .join(", ") || "Unknown location";
 
   const profession = lead.professions?.name || "Unknown profession";
-  const reasonForCall = lead.source || "No source provided";
   const contactName = lead.business_name || "there";
 
-  const leadNotesMessage = useMemo(() => {
-    const source = (lead.source || "").toLowerCase().trim();
-
-    if (source === "no website") {
-      return `Hi, is this ${contactName}? It's Sarah calling from Omino Digital. I noticed your business does not currently have a website, so I wanted to quickly reach out and see if that is something you are looking to sort out.`;
+  const selectedScript = useMemo(() => {
+    if (scriptType === "poor_website") {
+      return {
+        title: "Poor Website Script",
+        sections: [
+          {
+            heading: "Opening",
+            lines: [
+              `Hi, is this ${contactName}?`,
+              `It’s Sarah from Omino Digital.`,
+              `I came across your website — it looks alright, but I noticed a few things that could be improved, especially on mobile.`,
+              `Just wanted to ask — is your website actually bringing in new customers right now?`,
+            ],
+          },
+          {
+            heading: "If they say ‘Not really’",
+            lines: [
+              `Yeah, that’s exactly what I see with a lot of businesses.`,
+              `Usually it’s not about having a website — it’s about whether it actually converts visitors into enquiries.`,
+              `Have you ever looked into improving it?`,
+            ],
+          },
+          {
+            heading: "If they say ‘Yes, we have one’ defensively",
+            lines: [
+              `Yeah of course, most businesses do.`,
+              `The real question is whether it’s actually working for you or just sitting there.`,
+              `Are you getting consistent enquiries from it?`,
+            ],
+          },
+          {
+            heading: "If they show interest",
+            lines: [
+              `What I can do is put together a quick redesign mockup so you can see what a higher-converting version could look like.`,
+              `No pressure at all.`,
+              `Would you be open to that?`,
+            ],
+          },
+          {
+            heading: "If they say ‘Send email’",
+            lines: [
+              `Yeah no problem.`,
+              `Just so I send something relevant — are you more interested in improving what you have, or potentially rebuilding it properly?`,
+            ],
+          },
+          {
+            heading: "Close",
+            lines: [
+              `Perfect, I’ll send something tailored over.`,
+              `What’s the best email for you?`,
+            ],
+          },
+        ],
+      };
     }
 
-    if (source === "bad website") {
-      return `Hi, is this ${contactName}? It's Sarah calling from Omino Digital. I was taking a look at your website and wanted to reach out because there may be a good opportunity to improve how it looks, how clearly it presents the business, and how well it converts visitors into enquiries.`;
-    }
-
-    return `Hi, is this ${contactName}? It's Sarah calling from Omino Digital. I just wanted to quickly introduce myself and see whether improving your digital presence is something you would be open to discussing.`;
-  }, [lead.source, contactName]);
+    return {
+      title: "No Website Script",
+      sections: [
+        {
+          heading: "Opening",
+          lines: [
+            `Hi, is this ${contactName}?`,
+            `Hi, it’s Sarah calling from Omino Digital.`,
+            `I was just having a quick look and noticed you don’t currently have a proper website.`,
+            `Just wanted to ask — is that something you’ve been planning to set up or just not a priority right now?`,
+          ],
+        },
+        {
+          heading: "If they say ‘Not a priority’",
+          lines: [
+            `Yeah that’s fair.`,
+            `Out of curiosity, how are most of your customers finding you at the moment?`,
+          ],
+        },
+        {
+          heading: "If they say ‘Referrals / word of mouth’",
+          lines: [
+            `That makes sense, a lot of businesses rely on that.`,
+            `The only issue is a lot of people still check online before choosing — even if they’re referred.`,
+            `Have you ever had someone ask if you have a website?`,
+          ],
+        },
+        {
+          heading: "If they show interest",
+          lines: [
+            `What I can do is put together a quick mockup for your business so you can actually see what it could look like.`,
+            `No obligation at all.`,
+            `Would you be open to that?`,
+          ],
+        },
+        {
+          heading: "If they say ‘Send email’",
+          lines: [
+            `Yeah of course, I can send something over.`,
+            `Just so I don’t send something generic — are you looking to get something simple set up, or something more designed to bring in customers?`,
+          ],
+        },
+        {
+          heading: "Close",
+          lines: [
+            `Perfect, I’ll put something together and send it over.`,
+            `What’s the best email to reach you on?`,
+          ],
+        },
+      ],
+    };
+  }, [scriptType, contactName]);
 
   return (
     <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
@@ -327,15 +424,6 @@ function LeadCard({ lead, onComplete, isSubmitting }: LeadCardProps) {
                   •••
                 </div>
               </div>
-            </div>
-
-            <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4">
-              <div className="text-xs font-semibold uppercase tracking-[0.16em] text-amber-700">
-                Reason for call
-              </div>
-              <p className="mt-2 text-2xl font-semibold tracking-tight text-amber-950">
-                {reasonForCall}
-              </p>
             </div>
 
             <div className="grid gap-3 md:grid-cols-2">
@@ -427,27 +515,56 @@ function LeadCard({ lead, onComplete, isSubmitting }: LeadCardProps) {
         <div className="border-b border-slate-200 pb-3">
           <div className="flex items-center gap-6 text-sm font-medium">
             <div className="border-b-2 border-[#2563eb] pb-3 text-[#2563eb]">
-              Notes
+              Script
             </div>
           </div>
         </div>
 
         <div className="mt-4 rounded-3xl border border-slate-200 bg-white p-4">
-          <div className="text-lg font-semibold text-slate-900">Lead Notes</div>
-          <p className="mt-2 text-sm leading-6 text-slate-600">
-            {leadNotesMessage}
-          </p>
+          <div className="flex flex-col gap-3">
+            <div>
+              <div className="text-lg font-semibold text-slate-900">
+                Cold Call Script
+              </div>
+              <p className="mt-1 text-sm text-slate-500">
+                Pick the script type and follow the conversation flow.
+              </p>
+            </div>
+
+            <select
+              value={scriptType}
+              onChange={(e) =>
+                setScriptType(e.target.value as "no_website" | "poor_website")
+              }
+              className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-medium text-slate-900 outline-none transition focus:border-[#2563eb] focus:bg-white"
+            >
+              <option value="no_website">No website</option>
+              <option value="poor_website">Poor website</option>
+            </select>
+          </div>
         </div>
 
         <div className="mt-3 rounded-3xl border border-slate-200 bg-white p-4">
           <div className="text-lg font-semibold text-slate-900">
-            Available actions
+            {selectedScript.title}
           </div>
-          <div className="mt-3 space-y-2 text-sm text-slate-600">
-            <p>Call opens the device dialer when a phone number exists.</p>
-            <p>Email opens a new draft when an email address exists.</p>
-            <p>Visit opens the lead website in a new tab when available.</p>
-            <p>Quick Actions save the outcome and note for this lead.</p>
+
+          <div className="mt-4 space-y-4">
+            {selectedScript.sections.map((section) => (
+              <div
+                key={section.heading}
+                className="rounded-2xl border border-slate-200 bg-slate-50 p-4"
+              >
+                <div className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
+                  {section.heading}
+                </div>
+                <div className="mt-3 space-y-2 text-sm leading-6 text-slate-700">
+                  {section.lines.map((line) => (
+                    <p key={line}>{line}</p>
+                  ))}
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </aside>
