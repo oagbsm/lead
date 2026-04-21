@@ -265,6 +265,7 @@ function LeadCard({ lead, onComplete, isSubmitting }: LeadCardProps) {
 
   const profession = lead.professions?.name || "Unknown profession";
   const contactName = lead.business_name || "there";
+  const sourceLabel = lead.source || "Unknown source";
 
   const selectedScript = useMemo(() => {
     if (scriptType === "poor_website") {
@@ -390,6 +391,13 @@ function LeadCard({ lead, onComplete, isSubmitting }: LeadCardProps) {
                     <span className="rounded-full bg-emerald-50 px-3 py-1 text-sm font-medium text-emerald-700">
                       New Lead
                     </span>
+                  </div>
+
+                  <div className="inline-flex w-fit items-center gap-2 rounded-2xl border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900">
+                    <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-amber-700">
+                      Source
+                    </span>
+                    <span className="font-semibold text-amber-950">{sourceLabel}</span>
                   </div>
 
                   <div className="flex flex-wrap items-center gap-4 text-sm text-slate-600">
